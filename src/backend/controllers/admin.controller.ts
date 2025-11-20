@@ -17,7 +17,7 @@ export class AdminController extends BaseController {
     try {
       const services = await this.adminService.getAllServices();
 
-      return NextResponse.json({ services });
+      return this.success({ services }, 'Services retrieved successfully');
     } catch (error) {
       return this.handleError(error);
     }
@@ -29,7 +29,7 @@ export class AdminController extends BaseController {
     try {
       const configurations = await this.adminService.getAllConfigurations();
 
-      return NextResponse.json({ configurations });
+      return this.success({ configurations }, 'Configurations retrieved successfully');
     } catch (error) {
       return this.handleError(error);
     }
@@ -50,10 +50,7 @@ export class AdminController extends BaseController {
         description: validatedData.description,
       });
 
-      return NextResponse.json({
-        message: 'Configuration updated successfully',
-        configuration,
-      });
+      return this.success({ configuration }, 'Configuration updated successfully');
     } catch (error) {
       return this.handleError(error);
     }
@@ -65,7 +62,7 @@ export class AdminController extends BaseController {
     try {
       const dashboard = await this.adminService.getDashboard();
 
-      return NextResponse.json(dashboard);
+      return this.success(dashboard, 'Dashboard data retrieved successfully');
     } catch (error) {
       return this.handleError(error);
     }

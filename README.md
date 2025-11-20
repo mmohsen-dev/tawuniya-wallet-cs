@@ -4,13 +4,42 @@ A modern loyalty points management system built with Next.js, TypeScript, and Po
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### Option 1: Docker (Recommended - No Node.js or PostgreSQL installation needed!)
+
+#### Prerequisites
+
+- Docker
+- Docker Compose
+
+#### Setup with Docker
+
+**For Production Mode:**
+
+```bash
+# Build and start the containers
+docker-compose up -d
+
+# The application will be available at http://localhost:3000
+# Database will automatically be created, migrated, and seeded
+```
+
+**Stop the containers:**
+
+```bash
+docker-compose down
+```
+
+---
+
+### Option 2: Local Installation
+
+#### Prerequisites
 
 - Node.js 18+
 - PostgreSQL database
 - npm or yarn
 
-### Setup
+#### Setup
 
 1. **Install Dependencies**
 

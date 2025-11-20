@@ -29,18 +29,42 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  // Helper function to safely parse JSON from localStorage
+  const safeParseJSON = (value: string | null): User | null => {
+    if (!value || value === 'null' || value === 'undefined') {
+      return null;
+    }
+    try {
+      const parsed = JSON.parse(value);
+      return parsed;
+    } catch (error) {
+      console.error('Failed to parse user from localStorage:', error);
+      // Clean up invalid data
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('user');
+      }
+      return null;
+    }
+  };
+
   // Initialize state from localStorage using lazy initialization
   const [user, setUser] = useState<User | null>(() => {
     if (typeof window !== 'undefined') {
       const storedUser = localStorage.getItem('user');
-      return storedUser ? JSON.parse(storedUser) : null;
+      return safeParseJSON(storedUser);
     }
     return null;
   });
 
   const [token, setToken] = useState<string | null>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('token');
+      const storedToken = localStorage.getItem('token');
+      // Clean up invalid token values
+      if (storedToken === 'null' || storedToken === 'undefined' || storedToken === '') {
+        localStorage.removeItem('token');
+        return null;
+      }
+      return storedToken;
     }
     return null;
   });
@@ -52,7 +76,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('🔐 Attempting login for:', email);
       const response = await authAPI.login(email, password);
       console.log('✅ Login response:', response.data);
-      const { token, user } = response.data;
+      
+      // Handle new standardized response format: { success, message, data: { token, user } }
+      // or fallback to old format: { token, user }
+      const responseData = response.data;
+      let token: string;
+      let user: User;
+      
+      if (responseData.success && responseData.data) {
+        // New standardized format
+        token = responseData.data.token;
+        user = responseData.data.user;
+      } else if (responseData.token && responseData.user) {
+        // Old format (backward compatibility)
+        token = responseData.token;
+        user = responseData.user;
+      } else {
+        throw new Error('Invalid response format from server');
+      }
+      
+      if (!token || !user) {
+        throw new Error('Missing token or user data');
+      }
       
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
@@ -63,12 +108,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.log('✅ Login successful, user:', user);
       return { success: true };
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { error?: string } }; message?: string };
+      const err = error as { response?: { data?: { error?: string; message?: string } }; message?: string };
       console.error('❌ Login error:', error);
       console.error('❌ Error response:', err.response?.data);
+      
+      // Handle standardized error format: { success: false, error, details }
+      const errorMessage = 
+        err.response?.data?.error || 
+        err.response?.data?.message || 
+        err.message || 
+        'Login failed';
+      
       return {
         success: false,
-        error: err.response?.data?.error || err.message || 'Login failed',
+        error: errorMessage,
       };
     }
   };

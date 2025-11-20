@@ -61,16 +61,29 @@ export default function BurnPointsDialog({
   const fetchServices = async () => {
     try {
       const response = await serviceAPI.getServices('burn');
-      setServices(response.data.services);
+      // Handle new standardized response format: { success, data: { services } }
+      // or fallback to old format: { services }
+      const responseData = response.data;
+      const servicesData = responseData.success && responseData.data
+        ? responseData.data.services || []
+        : responseData.services || [];
+      setServices(servicesData);
     } catch {
       setError('Failed to fetch services');
+      setServices([]); // Set empty array on error
     }
   };
 
   const fetchBurnRate = async () => {
     try {
       const response = await configAPI.getPublicConfigurations();
-      const rate = parseFloat(response.data.configurations.burn_rate || '1');
+      // Handle new standardized response format: { success, data: { configurations } }
+      // or fallback to old format: { configurations }
+      const responseData = response.data;
+      const configurations = responseData.success && responseData.data
+        ? responseData.data.configurations || {}
+        : responseData.configurations || {};
+      const rate = parseFloat(configurations.burn_rate || '1');
       setBurnRate(rate);
     } catch {
       // Default to 1:1 if fetch fails

@@ -22,7 +22,7 @@ export class TransactionController extends BaseController {
         { type, limit, offset }
       );
 
-      return NextResponse.json(result);
+      return this.success(result, 'Transactions retrieved successfully');
     } catch (error) {
       return this.handleError(error);
     }
@@ -32,7 +32,7 @@ export class TransactionController extends BaseController {
     try {
       const result = await this.transactionService.getTransactionSummary(userId);
 
-      return NextResponse.json(result);
+      return this.success(result, 'Transaction summary retrieved successfully');
     } catch (error) {
       return this.handleError(error);
     }

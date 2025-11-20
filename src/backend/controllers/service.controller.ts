@@ -17,7 +17,7 @@ export class ServiceController extends BaseController {
       
       const services = await this.serviceService.getAllServices(usageType);
 
-      return NextResponse.json({ services });
+      return this.success({ services }, 'Services retrieved successfully');
     } catch (error) {
       return this.handleError(error);
     }
@@ -27,7 +27,7 @@ export class ServiceController extends BaseController {
     try {
       const service = await this.serviceService.getService(id);
 
-      return NextResponse.json({ service });
+      return this.success({ service }, 'Service retrieved successfully');
     } catch (error) {
       return this.handleError(error);
     }

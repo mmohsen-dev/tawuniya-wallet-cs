@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  output: 'standalone', // Enable standalone output for Docker
   transpilePackages: ['@mui/material', '@mui/system', '@mui/icons-material'],
   modularizeImports: {
     '@mui/material': {

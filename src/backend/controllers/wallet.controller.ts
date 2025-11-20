@@ -20,10 +20,7 @@ export class WalletController extends BaseController {
     try {
       const wallet = await this.walletService.getWallet(userId);
 
-      return NextResponse.json({
-        success: true,
-        data: { wallet },
-      });
+      return this.success({ wallet }, 'Wallet retrieved successfully');
     } catch (error) {
       return this.handleError(error);
     }
@@ -34,14 +31,7 @@ export class WalletController extends BaseController {
       const validatedData = earnPointsSchema.parse(body) as EarnPointsInput;
       const result = await this.walletService.earnPoints(validatedData);
 
-      return NextResponse.json(
-        {
-          success: true,
-          message: 'Points earned successfully',
-          data: result,
-        },
-        { status: 201 }
-      );
+      return this.created(result, 'Points earned successfully');
     } catch (error) {
       return this.handleError(error);
     }
@@ -52,14 +42,7 @@ export class WalletController extends BaseController {
       const validatedData = burnPointsSchema.parse(body) as BurnPointsInput;
       const result = await this.walletService.burnPoints(validatedData);
 
-      return NextResponse.json(
-        {
-          success: true,
-          message: 'Points burned successfully',
-          data: result,
-        },
-        { status: 201 }
-      );
+      return this.created(result, 'Points burned successfully');
     } catch (error) {
       return this.handleError(error);
     }

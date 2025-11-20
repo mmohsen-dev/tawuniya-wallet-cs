@@ -69,11 +69,17 @@ export default function ConfigurationsPage() {
     try {
       setLoading(true);
       const configResponse = await adminAPI.getConfigurations();
-      setConfigurations(configResponse.data.configurations);
+      // or fallback to old format: { configurations }
+      const responseData = configResponse.data;
+      const configurationsData = responseData.success && responseData.data
+        ? responseData.data.configurations || []
+        : responseData.configurations || [];
+      setConfigurations(configurationsData);
       setError('');
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string } } };
       setError(error.response?.data?.error || 'Failed to fetch data');
+      setConfigurations([]); // Set empty array on error
     } finally {
       setLoading(false);
     }

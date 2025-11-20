@@ -57,10 +57,29 @@ export default function TransactionHistory({ userId, refreshTrigger }: Transacti
       setLoading(true);
       const offset = (page - 1) * limit;
       const response = await transactionAPI.getTransactions(userId, undefined, limit, offset);
-      setTransactions(response.data.transactions);
-      setPagination(response.data.pagination);
+      
+      // Handle new standardized response format: { success, message, data: { transactions, pagination } }
+      // or fallback to old format: { transactions, pagination }
+      const responseData = response.data;
+      let transactionsData: Transaction[] = [];
+      let paginationData: PaginationData | null = null;
+      
+      if (responseData.success && responseData.data) {
+        // New standardized format
+        transactionsData = responseData.data.transactions || [];
+        paginationData = responseData.data.pagination || null;
+      } else if (responseData.transactions) {
+        // Old format (backward compatibility)
+        transactionsData = responseData.transactions || [];
+        paginationData = responseData.pagination || null;
+      }
+      
+      setTransactions(transactionsData);
+      setPagination(paginationData);
     } catch (error) {
       console.error('Failed to fetch transactions:', error);
+      setTransactions([]); // Set empty array on error
+      setPagination(null);
     } finally {
       setLoading(false);
     }
@@ -90,7 +109,7 @@ export default function TransactionHistory({ userId, refreshTrigger }: Transacti
     );
   }
 
-  if (transactions.length === 0) {
+  if (!transactions || transactions.length === 0) {
     return (
       <Box sx={{ textAlign: 'center', p: 3 }}>
         <Typography color="text.secondary">

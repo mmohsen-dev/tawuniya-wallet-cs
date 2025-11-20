@@ -43,7 +43,15 @@ export default function LoginPage() {
     
     if (result.success) {
       console.log('✅ Login successful, redirecting to dashboard...');
-      router.push('/dashboard');
+      // Verify token is stored before redirecting
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      if (token) {
+        // Use window.location for a full page reload to ensure auth context is re-initialized
+        window.location.href = '/dashboard';
+      } else {
+        console.error('❌ Token not found in localStorage after login');
+        setError('Login failed: Token not saved');
+      }
     } else {
       console.error('❌ Login failed:', result.error);
       setError(result.error || 'Login failed');

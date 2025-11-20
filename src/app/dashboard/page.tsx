@@ -62,7 +62,13 @@ export default function DashboardPage() {
       // Handle new consistent response format { success, data: { wallet } }
       const wallet = walletRes.data.data?.wallet || walletRes.data.wallet;
       setWallet(wallet);
-      setSummary(summaryRes.data.summary);
+      
+      // or fallback to old format: { summary, recentTransactions }
+      const summaryData = summaryRes.data;
+      const summary = summaryData.success && summaryData.data 
+        ? summaryData.data.summary 
+        : summaryData.summary;
+      setSummary(summary);
       setError('');
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string } } };

@@ -53,9 +53,16 @@ export default function EarnPointsDialog({ open, onClose, onSuccess, userId }: E
   const fetchServices = async () => {
     try {
       const response = await serviceAPI.getServices('earn');
-      setServices(response.data.services);
+      // Handle new standardized response format: { success, data: { services } }
+      // or fallback to old format: { services }
+      const responseData = response.data;
+      const servicesData = responseData.success && responseData.data
+        ? responseData.data.services || []
+        : responseData.services || [];
+      setServices(servicesData);
     } catch (err) {
       setError('Failed to fetch services');
+      setServices([]); // Set empty array on error
     }
   };
 

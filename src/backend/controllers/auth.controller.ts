@@ -25,10 +25,7 @@ export class AuthController extends BaseController {
 
       const result = await this.authService.login(validatedData as { email: string; password: string });
 
-      return NextResponse.json({
-        message: 'Login successful',
-        ...result,
-      });
+      return this.success(result, 'Login successful');
     } catch (error) {
       return this.handleError(error);
     }

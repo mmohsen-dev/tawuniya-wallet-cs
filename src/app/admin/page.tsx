@@ -56,11 +56,17 @@ export default function AdminPage() {
     try {
       setLoading(true);
       const response = await adminAPI.getDashboard();
-      setDashboard(response.data);
+      // or fallback to old format: { ... }
+      const responseData = response.data;
+      const dashboardData = responseData.success && responseData.data
+        ? responseData.data
+        : responseData;
+      setDashboard(dashboardData);
       setError('');
     } catch (err: unknown) {
       const error = err as { response?: { data?: { error?: string } } };
       setError(error.response?.data?.error || 'Failed to fetch dashboard data');
+      setDashboard(null); // Set null on error
     } finally {
       setLoading(false);
     }
