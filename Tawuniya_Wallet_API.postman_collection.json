@@ -1,0 +1,589 @@
+{
+  "info": {
+    "name": "Tawuniya Digital Wallet API",
+    "description": "Complete API collection for Tawuniya Digital Wallet system. Includes authentication, wallet operations, transactions, services, and admin endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "tawuniya-wallet"
+  },
+  "item": [
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Login - Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set('token', jsonData.token);",
+                  "    pm.environment.set('userId', jsonData.user.id);",
+                  "    pm.environment.set('userRole', jsonData.user.role);",
+                  "    console.log('Token saved:', jsonData.token);",
+                  "    console.log('User ID saved:', jsonData.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@tawuniya.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login with admin credentials. Token will be automatically saved to environment variables."
+          },
+          "response": []
+        },
+        {
+          "name": "Login - Regular User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.environment.set('token', jsonData.token);",
+                  "    pm.environment.set('userId', jsonData.user.id);",
+                  "    pm.environment.set('userRole', jsonData.user.role);",
+                  "    console.log('Token saved:', jsonData.token);",
+                  "    console.log('User ID saved:', jsonData.user.id);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"user123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login with regular user credentials. Token will be automatically saved to environment variables."
+          },
+          "response": []
+        }
+      ],
+      "description": "Authentication endpoints for login"
+    },
+    {
+      "name": "2. Wallet Operations",
+      "item": [
+        {
+          "name": "Get Wallet",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/wallet/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "wallet", "{{userId}}"]
+            },
+            "description": "Get wallet details for the authenticated user. Includes balance, total earned, and total burned points."
+          },
+          "response": []
+        },
+        {
+          "name": "Earn Points",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"serviceId\": \"{{serviceId}}\",\n  \"sarAmount\": 500.00\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/wallet/earn",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "wallet", "earn"]
+            },
+            "description": "Earn points by spending SAR amount on a service. Points are calculated based on the service's earn rate.\n\nNote: Get serviceId from 'Get Services (Earn)' endpoint first."
+          },
+          "response": []
+        },
+        {
+          "name": "Burn Points",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"points\": 100,\n  \"serviceId\": \"{{serviceId}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/wallet/burn",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "wallet", "burn"]
+            },
+            "description": "Burn (redeem) points for SAR value. SAR value is calculated based on the configured burn rate.\n\nNote: Get serviceId from 'Get Services (Burn)' endpoint first."
+          },
+          "response": []
+        }
+      ],
+      "description": "Wallet operations including viewing balance and earning/burning points"
+    },
+    {
+      "name": "3. Transactions",
+      "item": [
+        {
+          "name": "Get All Transactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/{{userId}}?limit=50&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions", "{{userId}}"],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "earn",
+                  "description": "Filter by type: 'earn' or 'burn'",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "50",
+                  "description": "Number of records per page"
+                },
+                {
+                  "key": "offset",
+                  "value": "0",
+                  "description": "Number of records to skip"
+                }
+              ]
+            },
+            "description": "Get paginated transaction history. Can filter by type (earn/burn)."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Earn Transactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/{{userId}}?type=earn&limit=50&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions", "{{userId}}"],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "earn"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Get only earn (credit) transactions."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Burn Transactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/{{userId}}?type=burn&limit=50&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions", "{{userId}}"],
+              "query": [
+                {
+                  "key": "type",
+                  "value": "burn"
+                },
+                {
+                  "key": "limit",
+                  "value": "50"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            },
+            "description": "Get only burn (debit) transactions."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transaction Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/{{userId}}/summary",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "transactions", "{{userId}}", "summary"]
+            },
+            "description": "Get transaction summary statistics including total earned, total burned, and transaction counts."
+          },
+          "response": []
+        }
+      ],
+      "description": "Transaction history and summary endpoints"
+    },
+    {
+      "name": "4. Services",
+      "item": [
+        {
+          "name": "Get All Services",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/services",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "services"]
+            },
+            "description": "Get all active services with their earn rates and usage types."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Services (Earn)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.services && jsonData.services.length > 0) {",
+                  "        pm.environment.set('serviceId', jsonData.services[0].id);",
+                  "        console.log('Service ID saved:', jsonData.services[0].id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/services?usageType=earn",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "services"],
+              "query": [
+                {
+                  "key": "usageType",
+                  "value": "earn"
+                }
+              ]
+            },
+            "description": "Get services available for earning points (usageType: 'earn' or 'both'). First service ID will be saved to environment."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Services (Burn)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/services?usageType=burn",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "services"],
+              "query": [
+                {
+                  "key": "usageType",
+                  "value": "burn"
+                }
+              ]
+            },
+            "description": "Get services available for burning points (usageType: 'burn' or 'both')."
+          },
+          "response": []
+        }
+      ],
+      "description": "Service management endpoints"
+    },
+    {
+      "name": "5. Configurations",
+      "item": [
+        {
+          "name": "Get Public Configurations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/configurations/public",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "configurations", "public"]
+            },
+            "description": "Get public configuration values (burn rate, expiry days, etc.). No authentication required."
+          },
+          "response": []
+        }
+      ],
+      "description": "Public configuration endpoints"
+    },
+    {
+      "name": "6. Admin",
+      "item": [
+        {
+          "name": "Get Dashboard KPIs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "dashboard"]
+            },
+            "description": "Get admin dashboard KPIs: active wallets, total points, average points per wallet, and expired points. Requires admin role."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Services (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/services",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "services"]
+            },
+            "description": "Get all services including inactive ones. Requires admin role."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Configurations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const jsonData = pm.response.json();",
+                  "    if (jsonData.configurations && jsonData.configurations.length > 0) {",
+                  "        pm.environment.set('configId', jsonData.configurations[0].id);",
+                  "        console.log('Config ID saved:', jsonData.configurations[0].id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/configurations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "configurations"]
+            },
+            "description": "Get all system configurations. First config ID will be saved to environment. Requires admin role."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Configuration",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"value\": \"3\",\n  \"description\": \"Updated burn rate - 1 point = 3 SAR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/configurations/{{configId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "configurations", "{{configId}}"]
+            },
+            "description": "Update a configuration value and description. Note: Configuration key cannot be changed. Requires admin role.\n\nRun 'Get All Configurations' first to populate {{configId}}."
+          },
+          "response": []
+        }
+      ],
+      "description": "Admin-only endpoints for dashboard and system management"
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// This script runs before every request",
+          "// You can add global pre-request logic here"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Global test script",
+          "pm.test('Response time is less than 5000ms', function () {",
+          "    pm.expect(pm.response.responseTime).to.be.below(5000);",
+          "});",
+          "",
+          "pm.test('Response has correct content type', function () {",
+          "    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json');",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ]
+}
+

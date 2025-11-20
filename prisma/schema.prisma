@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("user") // "user" or "admin"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  wallet       Wallet?
+  transactions Transaction[]
+}
+
+// Wallet model - One wallet per user
+model Wallet {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  balance       Int      @default(0) // Current points balance
+  totalEarned   Int      @default(0) // Lifetime earned points
+  totalBurned   Int      @default(0) // Lifetime burned points
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Service model - Available services that earn/burn points
+model Service {
+  id           String   @id @default(uuid())
+  name         String   @unique
+  description  String?
+  usageType    String   @default("both") // "earn", "burn", or "both"
+  active       Boolean  @default(true)
+  earnRateId   String?  // Link to earn rate configuration
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  transactions Transaction[]
+  earnRate     Configuration? @relation("ServiceEarnRate", fields: [earnRateId], references: [id], onDelete: SetNull)
+}
+
+// Configuration model - Rules for earning and burning points
+model Configuration {
+  id          String   @id @default(uuid())
+  key         String   @unique // e.g., "car_wash_earn_rate", "insurance_earn_rate", "burn_rate"
+  value       String   // e.g., "10" (10 points per 100 SAR)
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  servicesWithEarnRate Service[] @relation("ServiceEarnRate")
+}
+
+// Transaction model - All wallet transactions (earn/burn)
+model Transaction {
+  id          String   @id @default(uuid())
+  userId      String
+  serviceId   String?
+  type        String   // "earn" or "burn"
+  amount      Int      // Points amount
+  sarAmount   Float?   // SAR amount for context
+  description String?
+  expiresAt   DateTime? // For earned points - expiry date
+  expired     Boolean  @default(false) // Whether points have expired
+  createdAt   DateTime @default(now())
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  service Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([type])
+  @@index([expiresAt])
+}
+
+
