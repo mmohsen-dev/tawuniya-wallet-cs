@@ -201,97 +201,11 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/transactions/{{userId}}?limit=50&offset=0",
+              "raw": "{{baseUrl}}/api/transactions/{{userId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions", "{{userId}}"],
-              "query": [
-                {
-                  "key": "type",
-                  "value": "earn",
-                  "description": "Filter by type: 'earn' or 'burn'",
-                  "disabled": true
-                },
-                {
-                  "key": "limit",
-                  "value": "50",
-                  "description": "Number of records per page"
-                },
-                {
-                  "key": "offset",
-                  "value": "0",
-                  "description": "Number of records to skip"
-                }
-              ]
+              "path": ["api", "transactions", "{{userId}}"]
             },
-            "description": "Get paginated transaction history. Can filter by type (earn/burn)."
-          },
-          "response": []
-        },
-        {
-          "name": "Get Earn Transactions",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/transactions/{{userId}}?type=earn&limit=50&offset=0",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions", "{{userId}}"],
-              "query": [
-                {
-                  "key": "type",
-                  "value": "earn"
-                },
-                {
-                  "key": "limit",
-                  "value": "50"
-                },
-                {
-                  "key": "offset",
-                  "value": "0"
-                }
-              ]
-            },
-            "description": "Get only earn (credit) transactions."
-          },
-          "response": []
-        },
-        {
-          "name": "Get Burn Transactions",
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/transactions/{{userId}}?type=burn&limit=50&offset=0",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "transactions", "{{userId}}"],
-              "query": [
-                {
-                  "key": "type",
-                  "value": "burn"
-                },
-                {
-                  "key": "limit",
-                  "value": "50"
-                },
-                {
-                  "key": "offset",
-                  "value": "0"
-                }
-              ]
-            },
-            "description": "Get only burn (debit) transactions."
+            "description": "Get all transaction history for the user. Returns all transactions ordered by creation date (newest first)."
           },
           "response": []
         },

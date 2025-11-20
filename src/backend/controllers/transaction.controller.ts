@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { TransactionService } from '../services/transaction.service';
 import { BaseController } from './base.controller';
 
@@ -12,15 +12,7 @@ export class TransactionController extends BaseController {
 
   async getTransactions(req: NextRequest, userId: string) {
     try {
-      const { searchParams } = new URL(req.url);
-      const type = searchParams.get('type') as 'earn' | 'burn' | undefined;
-      const limit = parseInt(searchParams.get('limit') || '50');
-      const offset = parseInt(searchParams.get('offset') || '0');
-
-      const result = await this.transactionService.getTransactions(
-        userId,
-        { type, limit, offset }
-      );
+      const result = await this.transactionService.getTransactions(userId);
 
       return this.success(result, 'Transactions retrieved successfully');
     } catch (error) {

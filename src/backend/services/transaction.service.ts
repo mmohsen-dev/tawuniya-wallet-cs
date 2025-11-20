@@ -10,25 +10,11 @@ export class TransactionService {
     this.walletRepository = new WalletRepository();
   }
 
-  async getTransactions(
-    userId: string,
-    options?: {
-      type?: 'earn' | 'burn';
-      limit?: number;
-      offset?: number;
-    }
-  ) {
-    const transactions = await this.transactionRepository.findByUserId(userId, options);
-    const total = await this.transactionRepository.countByUserId(userId, options?.type);
+  async getTransactions(userId: string) {
+    const transactions = await this.transactionRepository.findByUserId(userId);
 
     return {
       transactions,
-      pagination: {
-        total,
-        limit: options?.limit || 50,
-        offset: options?.offset || 0,
-        hasMore: (options?.offset || 0) + (options?.limit || 50) < total,
-      },
     };
   }
 

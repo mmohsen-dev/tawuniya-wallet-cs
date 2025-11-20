@@ -31,21 +31,11 @@ export class TransactionRepository {
     });
   }
 
-  async findByUserId(
-    userId: string,
-    options?: {
-      type?: 'earn' | 'burn';
-      limit?: number;
-      offset?: number;
-    }
-  ) {
-    const where = {
-      userId,
-      ...(options?.type && { type: options.type }),
-    };
-
+  async findByUserId(userId: string) {
     return prisma.transaction.findMany({
-      where,
+      where: {
+        userId,
+      },
       include: {
         service: {
           select: {
@@ -58,8 +48,6 @@ export class TransactionRepository {
       orderBy: {
         createdAt: 'desc',
       },
-      take: options?.limit || 50,
-      skip: options?.offset || 0,
     });
   }
 

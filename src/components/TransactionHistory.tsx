@@ -12,7 +12,6 @@ import {
   Box,
   Typography,
   CircularProgress,
-  Pagination,
 } from '@mui/material';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
@@ -39,59 +38,40 @@ interface TransactionHistoryProps {
   refreshTrigger: number;
 }
 
-interface PaginationData {
-  total: number;
-  limit: number;
-  offset: number;
-}
-
 export default function TransactionHistory({ userId, refreshTrigger }: TransactionHistoryProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [pagination, setPagination] = useState<PaginationData | null>(null);
-  const limit = 10;
 
   const fetchTransactions = useCallback(async () => {
     try {
       setLoading(true);
-      const offset = (page - 1) * limit;
-      const response = await transactionAPI.getTransactions(userId, undefined, limit, offset);
+      const response = await transactionAPI.getTransactions(userId);
       
-      // Handle new standardized response format: { success, message, data: { transactions, pagination } }
-      // or fallback to old format: { transactions, pagination }
+      // Handle new standardized response format: { success, message, data: { transactions } }
+      // or fallback to old format: { transactions }
       const responseData = response.data;
       let transactionsData: Transaction[] = [];
-      let paginationData: PaginationData | null = null;
       
       if (responseData.success && responseData.data) {
         // New standardized format
         transactionsData = responseData.data.transactions || [];
-        paginationData = responseData.data.pagination || null;
       } else if (responseData.transactions) {
         // Old format (backward compatibility)
         transactionsData = responseData.transactions || [];
-        paginationData = responseData.pagination || null;
       }
       
       setTransactions(transactionsData);
-      setPagination(paginationData);
     } catch (error) {
       console.error('Failed to fetch transactions:', error);
       setTransactions([]); // Set empty array on error
-      setPagination(null);
     } finally {
       setLoading(false);
     }
-  }, [userId, page, limit]);
+  }, [userId]);
 
   useEffect(() => {
     fetchTransactions();
   }, [fetchTransactions, refreshTrigger]);
-
-  const handlePageChange = (event: React.ChangeEvent<unknown>, value: number) => {
-    setPage(value);
-  };
 
   const formatDate = (dateString: string) => {
     try {
@@ -182,17 +162,6 @@ export default function TransactionHistory({ userId, refreshTrigger }: Transacti
           </TableBody>
         </Table>
       </TableContainer>
-      
-      {pagination && pagination.total > limit && (
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-          <Pagination
-            count={Math.ceil(pagination.total / limit)}
-            page={page}
-            onChange={handlePageChange}
-            color="primary"
-          />
-        </Box>
-      )}
     </>
   );
 }

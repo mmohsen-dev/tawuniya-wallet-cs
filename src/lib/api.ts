@@ -60,8 +60,8 @@ export const walletAPI = {
 
 // Transaction APIs
 export const transactionAPI = {
-  getTransactions: (userId: string, type?: 'earn' | 'burn', limit = 50, offset = 0) =>
-    api.get(`/transactions/${userId}`, { params: { type, limit, offset } }),
+  getTransactions: (userId: string) =>
+    api.get(`/transactions/${userId}`),
   
   getTransactionSummary: (userId: string) =>
     api.get(`/transactions/${userId}/summary`),
