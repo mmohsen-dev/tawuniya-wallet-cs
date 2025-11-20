@@ -1,8 +1,13 @@
 import { prisma } from '../lib/prisma';
-import { Service, Prisma } from '@prisma/client';
+import {  Prisma } from '@prisma/client';
+
+// Type for Service with earnRate relation
+type ServiceWithEarnRate = Prisma.ServiceGetPayload<{
+  include: { earnRate: true };
+}>;
 
 export class ServiceRepository {
-  async findAll(activeOnly: boolean = true): Promise<Service[]> {
+  async findAll(activeOnly: boolean = true): Promise<ServiceWithEarnRate[]> {
     return prisma.service.findMany({
       where: activeOnly ? { active: true } : undefined,
       include: {
@@ -14,7 +19,7 @@ export class ServiceRepository {
     });
   }
 
-  async findById(id: string): Promise<Service | null> {
+  async findById(id: string): Promise<ServiceWithEarnRate | null> {
     return prisma.service.findUnique({
       where: { id },
       include: {
@@ -23,7 +28,7 @@ export class ServiceRepository {
     });
   }
 
-  async findByUsageType(usageType: string, activeOnly: boolean = true): Promise<Service[]> {
+  async findByUsageType(usageType: string, activeOnly: boolean = true): Promise<ServiceWithEarnRate[]> {
     // Build the where clause dynamically
     const whereConditions: Prisma.ServiceWhereInput = {
       ...(activeOnly && { active: true }),

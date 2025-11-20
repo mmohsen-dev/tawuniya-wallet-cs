@@ -5,6 +5,6 @@ import { withAdminAuth, AuthenticatedRequest } from '@/backend/middleware/auth.m
 const adminController = new AdminController();
 
 export const GET = withAdminAuth(async (req: AuthenticatedRequest) => {
-  return adminController.getAllServices(req);
+  return adminController.getAllServices();
 });
 
